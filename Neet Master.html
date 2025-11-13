@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>NEET-MasterTest</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f8fbff;--card:#ffffff;--accent:#6a1b9a;--good:#2ecc71;--bad:#e74c3c;--muted:#6b7280;}
+*{box-sizing:border-box}body{font-family:Inter,Arial,Helvetica,sans-serif;margin:0;background:var(--bg);color:#111}
+header{background:#fff;border-bottom:1px solid #eee;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+h1{margin:0;font-size:18px;color:var(--accent);font-weight:800}
+.header-right{font-size:13px;color:var(--muted)}
+.container{max-width:1100px;margin:22px auto;padding:0 16px 120px}
+.topcard{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card{background:var(--card);border-radius:12px;padding:14px 16px;box-shadow:0 6px 18px rgba(30,30,80,0.04);flex:1}
+.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:700}
+.btn.secondary{background:#fff;color:var(--accent);border:2px solid var(--accent)}
+.hint{color:var(--muted);font-size:13px;margin-top:8px}
+.tabs{display:flex;gap:8px;margin-bottom:12px}
+.tab{padding:8px 12px;border-radius:999px;background:linear-gradient(180deg,#fff,#fbfbff);border:1px solid #f0f0f5;cursor:pointer;font-weight:600;color:#333;font-size:13px}
+.stats{font-size:14px;color:var(--muted)}
+
+/* question card */
+.qcard{background:#fff;border-radius:12px;padding:14px;margin:12px 0;border:1px solid #f1f5f9}
+.qtop{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.qno{font-weight:800;color:var(--accent)}
+.qsub{font-size:13px;color:var(--muted)}
+.qtext{margin:8px 0 12px;font-size:16px}
+.opts{display:block}
+label.opt{display:block;padding:10px;border-radius:10px;margin:8px 0;border:1px solid #eee;cursor:pointer;background:#fff}
+label.opt input{margin-right:10px}
+label.opt.correct{background:linear-gradient(90deg,#e8fff2,#d4fbe6);border-color:rgba(46,204,113,0.2)}
+label.opt.wrong{background:linear-gradient(90deg,#ffecec,#ffdede);border-color:rgba(231,76,60,0.2)}
+label.opt.disabled{opacity:0.8;pointer-events:none}
+.footer{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #eee;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.resultbox{background:linear-gradient(180deg,#ffffff,#fbfbff);padding:12px;border-radius:10px;border:1px solid #f0f0f5;min-width:220px;text-align:center}
+.small{font-size:13px;color:var(--muted)}
+.finder{display:flex;gap:8px;align-items:center}
+.search{padding:8px 10px;border-radius:8px;border:1px solid #e6e6ee;font-size:14px}
+.subject-badge{padding:6px 10px;border-radius:8px;background:#fbf7ff;border:1px solid #f0e9fb;color:var(--accent);font-weight:700;font-size:13px}
+@media (max-width:720px){
+  .topcard{flex-direction:column;align-items:stretch}
+  .footer{flex-direction:column;gap:8px;align-items:stretch}
+}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>NEET Master </h1>
+    <div class="header-right small">200 Questions • Mixed (Hindi + English) • One-time submit (Try Again available)</div>
+  </div>
+  <div class="header-right small">AUTHOR: ADHYAN SARTHAK</div>
+</header>
+
+<div class="container">
+  <div class="topcard">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <div>
+          <div class="tabs" role="tablist">
+            <div class="tab" onclick="filterBy('all')">All</div>
+            <div class="tab" onclick="filterBy('Biology')">Biology</div>
+            <div class="tab" onclick="filterBy('Chemistry')">Chemistry</div>
+            <div class="tab" onclick="filterBy('Physics')">Physics</div>
+          </div>
+          <div class="hint">Tip: Use subject tabs to jump. Questions order is randomized every load.</div>
+        </div>
+        <div class="controls">
+          <div class="subject-badge">Bio:100 • Chem:60 • Phys:40</div>
+          <div class="stats small" id="progress">Answered: 0/200</div>
+        </div>
+      </div>
+    </div>
+    <div style="width:320px">
+      <div class="card">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="resultbox">
+            <div id="scoreDisplay" style="font-weight:800;font-size:20px;color:var(--accent)">Score: -</div>
+            <div id="percDisplay" class="small">Percentage: -</div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button class="btn" id="submitBtn">Submit Test</button>
+            <button class="btn secondary" id="tryAgainBtn" style="display:none">Try Again</button>
+          </div>
+          <div class="hint small">After submit correct answers are highlighted. One-time submit enforced per browser.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="questionsArea"></div>
+
+</div>
+
+<footer class="footer">
+  <div class="small">NEET Master Test • Generated BY ADHYAN SARTHAK</div>
+  <div style="display:flex;gap:10px">
+    <div class="small">Local one-time submit enforced • To reset locally: open console and run <code>localStorage.removeItem('neet_master_submitted')</code></div>
+  </div>
+</footer>
+
+<script>
+// QUESTIONS: 200 items (mixed bilingual). Each item: {id, subject, text, options:[4], answer: index}
+const questions = [
+  {"id":"q1","subject":"Biology","text":"1. DNA replication में ‘proofreading’ activity कौन-सा enzyme करता है? / Which enzyme performs proofreading during DNA replication?","options":["DNA ligase","DNA polymerase I","DNA polymerase III","Helicase"],"answer":2},
+  {"id":"q2","subject":"Biology","text":"2. Electron transport chain mitochondria के किस compartment में embedded complexes होते हैं? / In which part are ETC complexes located?","options":["Matrix","Inner mitochondrial membrane","Outer membrane","Intermembrane space"],"answer":1},
+  {"id":"q3","subject":"Physics","text":"3. Ideal gas पर isothermal compression में internal energy क्या होती है? / For an ideal gas under isothermal compression, internal energy:","options":["Increases","Decreases","Remains constant","Depends on process rate"],"answer":2},
+  {"id":"q4","subject":"Biology","text":"4. निम्न में से कौन-सा hormone steroid नहीं है? / Which of the following is NOT a steroid hormone?","options":["Testosterone","Estrogen","Insulin","Cortisol"],"answer":2},
+  {"id":"q5","subject":"Chemistry","text":"5. Disproportionation reaction में क्या होता है? / What happens in a disproportionation reaction?","options":["Neutralization","Same species oxidised & reduced","Substitution","Precipitation"],"answer":1},
+  {"id":"q6","subject":"Physics","text":"6. Photoelectric effect में emitted electrons की kinetic energy किस पर निर्भर करती है? / Kinetic energy of emitted electrons in photoelectric effect depends on:","options":["Light intensity","Frequency of incident light","Number of photons","Distance of source"],"answer":1},
+  {"id":"q7","subject":"Biology","text":"7. Genetic code की redundancy का कारण क्या है? / Why is the genetic code redundant?","options":["20 amino acids & 64 codons","64 amino acids & 20 codons","Non-sense codons","Frameshift mutation"],"answer":0},
+  {"id":"q8","subject":"Chemistry","text":"8. 0.1 M HCl और 0.1 M CH₃COOH का pH समान नहीं होगा क्योंकि? / Why 0.1 M HCl and 0.1 M CH₃COOH do not have same pH?","options":["Temperature difference","CH₃COOH is a weak acid","HCl is base","Measurement error"],"answer":1},
+  {"id":"q9","subject":"Physics","text":"9. Boyle’s law और Charles’ law किस fundamental relation से derive होते हैं? / From which relation are Boyle's and Charles' laws derived?","options":["Dalton’s law","Avogadro’s law","Ideal gas law (PV = nRT)","Graham’s law"],"answer":2},
+  {"id":"q10","subject":"Biology","text":"10. Mendel ने monohybrid cross में F₂ generation में 3:1 ratio क्यों पाया? / Why did Mendel get 3:1 ratio in F2 of monohybrid cross?","options":["Law of segregation","Law of independent assortment","Linkage","Mutation"],"answer":0},
+  {"id":"q11","subject":"Biology","text":"11. Competitive inhibition में Vmax और Km किस तरह change होते हैं? / In competitive inhibition Vmax and Km change how?","options":["Vmax down, Km same","Vmax same, Km increases","Vmax same, Km decreases","Vmax decreases, Km decreases"],"answer":1},
+  {"id":"q12","subject":"Biology","text":"12. pH 7 पर amino acid glycine का net charge क्या होगा? (zwitterion) / Net charge of glycine at pH 7?","options":["+1","0","-1","Depends on pKa"],"answer":1},
+  {"id":"q13","subject":"Chemistry","text":"13. Acidic oxide पानी में मिलकर क्या बनाती है? / What does an acidic oxide form with water?","options":["Acid","Base","Salt","Amphoteric"],"answer":0},
+  {"id":"q14","subject":"Physics","text":"14. Intrinsic semiconductor में Fermi level कहाँ होता है? / Where is Fermi level in intrinsic semiconductor?","options":["Conduction band","Valence band","Middle of band gap","Depends on doping"],"answer":2},
+  {"id":"q15","subject":"Biology","text":"15. Hardy–Weinberg equilibrium के लिए कौन-सी शर्त जरूरी नहीं है? / Which is NOT required for Hardy–Weinberg?","options":["Large population","No selection","Non-random mating","No migration"],"answer":2},
+  {"id":"q16","subject":"Chemistry","text":"16. First-order reaction: time to reduce to 1/4 concentration is? / For first-order, if t1 is half-time, time to 1/4 is:","options":["t1","2 t1","3 t1","4 t1"],"answer":1},
+  {"id":"q17","subject":"Biology","text":"17. Which vitamin is fat-soluble? / Kaunsa vitamin fat-soluble hai?","options":["Vitamin C","Vitamin B1","Vitamin A","Vitamin B12"],"answer":2},
+  {"id":"q18","subject":"Physics","text":"18. Doping in semiconductors: which adds electrons (n-type)?","options":["Acceptor impurity","Donor impurity","Intrinsic","None"],"answer":1},
+  {"id":"q19","subject":"Chemistry","text":"19. CH₃COOH vs CCl₃COOH acidity: which stronger & why?","options":["CH₃COOH stronger","CCl₃COOH stronger due to -I effect","Same","Depends on solvent"],"answer":1},
+  {"id":"q20","subject":"Biology","text":"20. Alzheimer disease का मुख्य pathological hallmark कौन-सा नहीं है? / Which is NOT a hallmark of Alzheimer?","options":["Neurofibrillary tangles","Beta-amyloid plaques","Lewy bodies","Synaptic loss"],"answer":2},
+
+  {"id":"q21","subject":"Physics","text":"21. 1 mole ideal gas at 300K — internal energy depends on?","options":["Pressure","Temperature only","Volume only","Both P and V"],"answer":1},
+  {"id":"q22","subject":"Biology","text":"22. Lineweaver–Burk plot में y-intercept किसके बराबर होता है?","options":["1/Vmax","-1/Km","Km/Vmax","Vmax"],"answer":0},
+  {"id":"q23","subject":"Chemistry","text":"23. निम्न में से कौन amphoteric oxide है? / Which is amphoteric oxide?","options":["Na₂O","CO₂","Al₂O₃","SO₃"],"answer":2},
+  {"id":"q24","subject":"Biology","text":"24. Meiosis के किस चरण में crossing over होता है? / Crossing over occurs in which substage?","options":["Prophase I (pachytene)","Metaphase I","Anaphase II","Telophase I"],"answer":0},
+  {"id":"q25","subject":"Chemistry","text":"25. Henry’s law gas solubility को किसपर निर्भर बताता है? / Henry's law relates solubility to:","options":["Temperature","Partial pressure of gas","Volume of solution","Molarity of solvent"],"answer":1},
+  {"id":"q26","subject":"Biology","text":"26. Per glucose maximum ATP किस process से बनता है? / Which produces max ATP per glucose?","options":["Glycolysis","Citric acid cycle","Oxidative phosphorylation","Fermentation"],"answer":2},
+  {"id":"q27","subject":"Physics","text":"27. Two equal resistors R parallel का equivalent resistance = ?","options":["R/2","2R","R","R²/2"],"answer":0},
+  {"id":"q28","subject":"Biology","text":"28. किस nucleotide base pair में 3 H-bonds होते हैं? / Which pair has 3 H-bonds?","options":["A–T","G–C","A–U","C–T"],"answer":1},
+  {"id":"q29","subject":"Chemistry","text":"29. Bucherer reaction किस transformation के लिए जाना जाता है?","options":["Aldol condensation","naphthol → amino compound","Esterification","Hydrogenation"],"answer":1},
+  {"id":"q30","subject":"Biology","text":"30. Non-reducing sugar कौन-सा है? / Which is non-reducing sugar?","options":["Glucose","Fructose","Sucrose","Galactose"],"answer":2},
+
+  {"id":"q31","subject":"Biology","text":"31. DNA का backbone किससे बना होता है? / DNA backbone is made of?","options":["Amino acids","Sugar–phosphate","Nucleotides bases","Peptides"],"answer":1},
+  {"id":"q32","subject":"Chemistry","text":"32. pH 7 पर solution neutral होता है क्योंकि? / Why pH 7 considered neutral at 25°C?","options":["[H⁺]=[OH⁻]","Temperature dependent","Because of salts","Due to buffers"],"answer":0},
+  {"id":"q33","subject":"Physics","text":"33. Motion under constant acceleration की displacement formula क्या है?","options":["s = ut + ½at²","s = vt + ½at²","s = ut - at²","s = u² + v²"],"answer":0},
+  {"id":"q34","subject":"Biology","text":"34. Hemoglobin में oxygen binding किस पर depend करती है?","options":["Partial pressure of O₂","pH","Temperature","All of these"],"answer":3},
+  {"id":"q35","subject":"Chemistry","text":"35. Which reagent oxidizes aldehydes to carboxylic acids?","options":["Tollen’s reagent","Bromine water","NH₄OH","Sodium chloride"],"answer":0},
+  {"id":"q36","subject":"Physics","text":"36. SI unit of force क्या है? / What is SI unit of force?","options":["Newton","Joule","Watt","Pascal"],"answer":0},
+  {"id":"q37","subject":"Biology","text":"37. Plant cell wall main polymer कौन-सा है? / Major polymer of plant cell wall?","options":["Cellulose","Collagen","Chitin","Pectin"],"answer":0},
+  {"id":"q38","subject":"Chemistry","text":"38. Which is a polar covalent bond? / Kaunsa bond polar covalent hai?","options":["H–H","C–C","H–Cl","Ne–Ne"],"answer":2},
+  {"id":"q39","subject":"Physics","text":"39. Electric field inside conductor in electrostatic equilibrium = ?","options":["Zero","Max","Depends on shape","Cannot determine"],"answer":0},
+  {"id":"q40","subject":"Biology","text":"40. RNA polymerase binds to which DNA region to start transcription? / Transcription start site is at:","options":["Promoter","Operator","Enhancer","Terminator"],"answer":0},
+
+  {"id":"q41","subject":"Biology","text":"41. ATP production mainly occurs at which location? / ATP majorly produced in:","options":["Cytosol","Mitochondrial matrix/inner membrane","Nucleus","Ribosome"],"answer":1},
+  {"id":"q42","subject":"Chemistry","text":"42. Which is the most electronegative element?","options":["Oxygen","Chlorine","Fluorine","Nitrogen"],"answer":2},
+  {"id":"q43","subject":"Physics","text":"43. Which phenomenon demonstrates wave nature of electrons?","options":["Photoelectric effect","Electron diffraction","Compton scattering","Thermionic emission"],"answer":1},
+  {"id":"q44","subject":"Biology","text":"44. Which vitamin deficiency causes scurvy? / Kaunsi vitamin ki kami se scurvy hota hai?","options":["Vitamin A","Vitamin C","Vitamin D","Vitamin K"],"answer":1},
+  {"id":"q45","subject":"Chemistry","text":"45. Which bond is strongest typically?","options":["Ionic","Covalent","Hydrogen bond","Van der Waals"],"answer":1},
+  {"id":"q46","subject":"Physics","text":"46. Frequency and wavelength relation to speed of wave: v = ?","options":["f × λ","f / λ","λ / f","f + λ"],"answer":0},
+  {"id":"q47","subject":"Biology","text":"47. Antibodies produced by B cells are of which type?","options":["Hormones","Immunoglobulins (Ig)","Enzymes","Neurotransmitters"],"answer":1},
+  {"id":"q48","subject":"Chemistry","text":"48. Which is an example of an alkane?","options":["Ethene","Ethyne","Ethane","Ethanol"],"answer":2},
+  {"id":"q49","subject":"Physics","text":"49. Unit of capacitance is? / Capacitance unit kya hai?","options":["Farad","Henry","Weber","Ohm"],"answer":0},
+  {"id":"q50","subject":"Biology","text":"50. Crossing over increases what in offspring? / Crossing over offspring में क्या बढ़ाता है?","options":["Mutation","Genetic variation","Cloning","Sterility"],"answer":1},
+
+  {"id":"q51","subject":"Biology","text":"51. PCR technique का purpose क्या है? / Purpose of PCR?","options":["Sequence proteins","Amplify DNA","Break DNA","Translate mRNA"],"answer":1},
+  {"id":"q52","subject":"Chemistry","text":"52. Which is a weak acid among these?","options":["HCl","HNO₃","CH₃COOH","H₂SO₄"],"answer":2},
+  {"id":"q53","subject":"Physics","text":"53. Work done by conservative force over closed path = ?","options":["Zero","Positive","Negative","Depends"],"answer":0},
+  {"id":"q54","subject":"Biology","text":"54. Where does glycolysis occur? / Glycolysis kaha hota hai?","options":["Mitochondria","Cytoplasm","Nucleus","Chloroplast"],"answer":1},
+  {"id":"q55","subject":"Chemistry","text":"55. Which of following is aromatic?","options":["Cyclohexane","Benzene","Pentane","Butane"],"answer":1},
+  {"id":"q56","subject":"Physics","text":"56. Which law relates emission & absorption of radiation? (Kirchhoff)","options":["Kirchhoff’s law","Newton’s law","Ohm’s law","Boyle’s law"],"answer":0},
+  {"id":"q57","subject":"Biology","text":"57. Which organelle modifies, sorts & packages proteins?","options":["Ribosome","Golgi apparatus","Lysosome","Peroxisome"],"answer":1},
+  {"id":"q58","subject":"Chemistry","text":"58. Titration end point indicates what?","options":["Start of reaction","Equivalence point","Neutral medium always","pH zero"],"answer":1},
+  {"id":"q59","subject":"Physics","text":"59. Acceleration due to gravity on Earth ≈?","options":["9.8 m/s²","8 m/s²","10.5 m/s²","12 m/s²"],"answer":0},
+  {"id":"q60","subject":"Biology","text":"60. Which is primary immune response? / Primary response main cell type?","options":["Memory B cells","Naive B cells","Plasma cells","Treg cells"],"answer":1},
+
+  {"id":"q61","subject":"Biology","text":"61. Which blood vessel carries oxygenated blood from lungs to heart?","options":["Pulmonary artery","Pulmonary vein","Aorta","Vena cava"],"answer":1},
+  {"id":"q62","subject":"Chemistry","text":"62. Which element is diatomic in standard state?","options":["Helium","Neon","Nitrogen","Argon"],"answer":2},
+  {"id":"q63","subject":"Physics","text":"63. In optics, real image formed by concave mirror is where?","options":["In front of mirror","Behind mirror","At infinity only","No image"],"answer":0},
+  {"id":"q64","subject":"Biology","text":"64. Which enzyme converts pyruvate to acetyl-CoA?","options":["Pyruvate kinase","Pyruvate dehydrogenase","Pyruvate carboxylase","Lactate dehydrogenase"],"answer":1},
+  {"id":"q65","subject":"Chemistry","text":"65. Which gas turns lime water milky? / Lime water test positive for?","options":["O₂","CO₂","N₂","H₂"],"answer":1},
+  {"id":"q66","subject":"Physics","text":"66. Which wave is transverse?","options":["Sound wave","Water surface wave","Longitudinal wave","Shock wave"],"answer":1},
+  {"id":"q67","subject":"Biology","text":"67. Which blood cell is key in allergic responses?","options":["Basophils","Erythrocytes","Platelets","Neurons"],"answer":0},
+  {"id":"q68","subject":"Chemistry","text":"68. Which is a reducing sugar?","options":["Sucrose","Glucose","Cellulose","Starch"],"answer":1},
+  {"id":"q69","subject":"Physics","text":"69. EMF unit is?","options":["Volt","Ohm","Ampere","Watt"],"answer":0},
+  {"id":"q70","subject":"Biology","text":"70. Which structure stores calcium in muscle? / Muscle mein Ca²⁺ store kaha hota hai?","options":["Mitochondria","Sarcoplasmic reticulum","Nucleus","Golgi"],"answer":1},
+
+  {"id":"q71","subject":"Biology","text":"71. Which of following shows incomplete dominance?","options":["Mendelian traits only","Some genes with blended phenotype","Sex-linked traits","Cytoplasmic inheritance"],"answer":1},
+  {"id":"q72","subject":"Chemistry","text":"72. Which of these increases rate of reaction by lowering activation energy?","options":["Catalyst","Temperature decrease","Inhibitor","None"],"answer":0},
+  {"id":"q73","subject":"Physics","text":"73. Specific heat capacity unit is?","options":["J/kg·K","J/mol","W/mK","J/kg"],"answer":0},
+  {"id":"q74","subject":"Biology","text":"74. Which is not a part of RNA molecule?","options":["Ribose sugar","Uracil base","Deoxyribose sugar","Phosphate group"],"answer":2},
+  {"id":"q75","subject":"Chemistry","text":"75. Which reagent distinguishes aldehydes from ketones?","options":["Tollens reagent","Bromine water","Litmus","Phenolphthalein"],"answer":0},
+  {"id":"q76","subject":"Physics","text":"76. Newton’s third law states what? / Action–reaction equals?","options":["Forces equal and opposite","Forces equal same direction","Acceleration equal","Energy conserved"],"answer":0},
+  {"id":"q77","subject":"Biology","text":"77. Complement system is part of which immunity?","options":["Innate immunity","Adaptive immunity","Both","None"],"answer":0},
+  {"id":"q78","subject":"Chemistry","text":"78. Which is an isomer of C₄H₁₀?","options":["Butane and isobutane","Methane and ethane","Propane and butane","None"],"answer":0},
+  {"id":"q79","subject":"Physics","text":"79. Which of following is scalar?","options":["Velocity","Acceleration","Speed","Displacement"],"answer":2},
+  {"id":"q80","subject":"Biology","text":"80. Which organ is primary in endocrine function?","options":["Kidney","Pancreas","Thyroid","Heart"],"answer":2},
+
+  {"id":"q81","subject":"Biology","text":"81. Which cell junction prevents leakage between epithelial cells?","options":["Gap junction","Tight junction","Desmosome","Plasmodesmata"],"answer":1},
+  {"id":"q82","subject":"Chemistry","text":"82. Which process converts alcohol to alkene?","options":["Oxidation","Dehydration","Hydrogenation","Hydrolysis"],"answer":1},
+  {"id":"q83","subject":"Physics","text":"83. Which instrument measures pressure?","options":["Ammeter","Voltmeter","Manometer","Galvanometer"],"answer":2},
+  {"id":"q84","subject":"Biology","text":"84. Which blood parameter indicates infection?","options":["Low RBC","High WBC","Low platelets","High hemoglobin"],"answer":1},
+  {"id":"q85","subject":"Chemistry","text":"85. Which is a halogen?","options":["Oxygen","Fluorine","Nitrogen","Carbon"],"answer":1},
+  {"id":"q86","subject":"Physics","text":"86. Doppler effect relates change in frequency with what?","options":["Relative motion between source and observer","Pressure change","Temperature","Amplitude"],"answer":0},
+  {"id":"q87","subject":"Biology","text":"87. Which bacteria is prokaryote?","options":["Amoeba","E. coli","Yeast","Paramecium"],"answer":1},
+  {"id":"q88","subject":"Chemistry","text":"88. Which is an ionic compound?","options":["H₂O","NaCl","CH₄","C₆H₆"],"answer":1},
+  {"id":"q89","subject":"Physics","text":"89. Work done by zero force over displacement = ?","options":["Zero","Positive","Negative","Infinity"],"answer":0},
+  {"id":"q90","subject":"Biology","text":"90. Blood clotting requires which ion?","options":["K⁺","Ca²⁺","Na⁺","Cl⁻"],"answer":1},
+
+  {"id":"q91","subject":"Biology","text":"91. Which enzyme digests proteins in stomach?","options":["Amylase","Pepsin","Lipase","Trypsin"],"answer":1},
+  {"id":"q92","subject":"Chemistry","text":"92. Which is a polymer of glucose with alpha-1,4 linkages?","options":["Cellulose","Glycogen","Starch (amylose)","Chitin"],"answer":2},
+  {"id":"q93","subject":"Physics","text":"93. Acceleration due to gravity depends on what?","options":["Mass of object","Radius of Earth & mass of Earth","Speed","Temperature"],"answer":1},
+  {"id":"q94","subject":"Biology","text":"94. Which hormone controls calcium level? / Ca²⁺ level controlar?","options":["Insulin","Parathyroid hormone","Thyroxine","ACTH"],"answer":1},
+  {"id":"q95","subject":"Chemistry","text":"95. Which reaction shows addition of H₂ across double bond?","options":["Hydrogenation","Dehydrogenation","Substitution","Polymerization"],"answer":0},
+  {"id":"q96","subject":"Physics","text":"96. Which is electromagnetic wave?","options":["Sound","Light","Ultrasound","Water wave"],"answer":1},
+  {"id":"q97","subject":"Biology","text":"97. Which organelle contains hydrolytic enzymes?","options":["Mitochondria","Lysosome","Golgi","RER"],"answer":1},
+  {"id":"q98","subject":"Chemistry","text":"98. pH of 0.01 M HCl is approximately?","options":["2","4","7","1"],"answer":0},
+  {"id":"q99","subject":"Physics","text":"99. Power is rate of doing work; unit is?","options":["Joule","Watt","Newton","Pascal"],"answer":1},
+  {"id":"q100","subject":"Biology","text":"100. Which process produces insulin in body? / Insulin produced by which organ?","options":["Liver","Pancreas","Kidney","Spleen"],"answer":1},
+
+  {"id":"q101","subject":"Biology","text":"101. Which macromolecule has peptide bonds?","options":["Carbohydrates","Proteins","Lipids","Nucleic acids"],"answer":1},
+  {"id":"q102","subject":"Chemistry","text":"102. Avogadro's number gives number of particles in?","options":["1 mole","1 liter","1 gram","1 kg"],"answer":0},
+  {"id":"q103","subject":"Physics","text":"103. Which device converts AC to DC?","options":["Transformer","Rectifier","Oscilloscope","Ammeter"],"answer":1},
+  {"id":"q104","subject":"Biology","text":"104. Which gland secretes digestive enzymes into small intestine?","options":["Thyroid","Pancreas","Adrenal","Pineal"],"answer":1},
+  {"id":"q105","subject":"Chemistry","text":"105. Which is a polar solvent?","options":["Hexane","Water","Benzene","Chloroform"],"answer":1},
+  {"id":"q106","subject":"Physics","text":"106. The period of pendulum depends on?","options":["Mass of bob","Length of pendulum","Amplitude only","Color"],"answer":1},
+  {"id":"q107","subject":"Biology","text":"107. Which blood component transports oxygen?","options":["WBC","RBC","Platelets","Plasma"],"answer":1},
+  {"id":"q108","subject":"Chemistry","text":"108. Which gas is most abundant in air?","options":["Oxygen","Nitrogen","Carbon dioxide","Argon"],"answer":1},
+  {"id":"q109","subject":"Physics","text":"109. In which medium does sound travel fastest?","options":["Air","Vacuum","Solids","Gases"],"answer":2},
+  {"id":"q110","subject":"Biology","text":"110. Which pigment in plants captures light energy?","options":["Chlorophyll","Hemoglobin","Melanin","Rhodopsin"],"answer":0},
+
+  {"id":"q111","subject":"Biology","text":"111. Which enzyme removes RNA primers during replication?","options":["DNA pol I","DNA ligase","Primase","Helicase"],"answer":0},
+  {"id":"q112","subject":"Chemistry","text":"112. Which is an amphiprotic substance?","options":["HCl","NH₃","H₂O","NaOH"],"answer":2},
+  {"id":"q113","subject":"Physics","text":"113. If current doubles and resistance constant, power does what?","options":["Halves","Doubles","Quadruples","Remains"],"answer":2},
+  {"id":"q114","subject":"Biology","text":"114. Which urine component indicates kidney failure?","options":["Glucose","Albumin (protein)","Urea","Creatinine levels"],"answer":1},
+  {"id":"q115","subject":"Chemistry","text":"115. Which is obtained by fractional distillation?","options":["Pure water","Petroleum fractions","Salt","Sugar"],"answer":1},
+  {"id":"q116","subject":"Physics","text":"116. Magnetic field around a straight current-carrying wire is given by?","options":["Biot-Savart law","Ohm's law","Faraday's law","Hooke's law"],"answer":0},
+  {"id":"q117","subject":"Biology","text":"117. Which structure is present in prokaryotes but not in eukaryotes?","options":["Nucleus","Plasmid","Mitochondria","Golgi"],"answer":1},
+  {"id":"q118","subject":"Chemistry","text":"118. Which is strong base?","options":["KOH","NH₄OH","CH₃COONa","H₂O"],"answer":0},
+  {"id":"q119","subject":"Physics","text":"119. Which quantity is a vector?","options":["Speed","Mass","Displacement","Temperature"],"answer":2},
+  {"id":"q120","subject":"Biology","text":"120. Which organ produces bile?","options":["Pancreas","Liver","Stomach","Small intestine"],"answer":1},
+
+  {"id":"q121","subject":"Biology","text":"121. Incomplete dominance gives what type of phenotype?","options":["Blended phenotype","Parental only","Recessive only","Lethal"],"answer":0},
+  {"id":"q122","subject":"Chemistry","text":"122. Which bond is polar?","options":["C–H","C–Cl","O–O","N–N"],"answer":1},
+  {"id":"q123","subject":"Physics","text":"123. Resonance occurs when driving frequency equals?","options":["Natural frequency","Half frequency","Double frequency","Zero"],"answer":0},
+  {"id":"q124","subject":"Biology","text":"124. Which cell organelle synthesizes lipids?","options":["RER","SER","Mitochondria","Nucleus"],"answer":1},
+  {"id":"q125","subject":"Chemistry","text":"125. Which is an example of a polymerization reaction?","options":["Formation of polyethylene","Combustion of methane","Dissolution of salt","Evaporation"],"answer":0},
+  {"id":"q126","subject":"Physics","text":"126. Conservation of energy implies total energy in isolated system is?","options":["Constant","Increasing","Decreasing","Zero"],"answer":0},
+  {"id":"q127","subject":"Biology","text":"127. Which process converts nitrate to nitrogen gas?","options":["Nitrification","Denitrification","Ammonification","Nitrogen fixation"],"answer":1},
+  {"id":"q128","subject":"Chemistry","text":"128. Which is oxidizing agent?","options":["KMnO₄","Zn","Fe","Mg"],"answer":0},
+  {"id":"q129","subject":"Physics","text":"129. The slope of distance–time graph gives?","options":["Velocity","Acceleration","Displacement","Jerk"],"answer":0},
+  {"id":"q130","subject":"Biology","text":"130. Which hormone is secreted by thyroid gland?","options":["Insulin","Thyroxine (T4)","Glucagon","Adrenaline"],"answer":1},
+
+  {"id":"q131","subject":"Biology","text":"131. Which immune cells present antigens to T cells?","options":["B cells","Macrophages and dendritic cells","RBCs","Platelets"],"answer":1},
+  {"id":"q132","subject":"Chemistry","text":"132. Which technique separates mixtures by solubility?","options":["Chromatography","Distillation","Centrifugation","Titration"],"answer":0},
+  {"id":"q133","subject":"Physics","text":"133. Work done by constant force F over displacement s is?","options":["F × s","F / s","s / F","F + s"],"answer":0},
+  {"id":"q134","subject":"Biology","text":"134. Which RNA carries amino acids to ribosome?","options":["mRNA","tRNA","rRNA","snRNA"],"answer":1},
+  {"id":"q135","subject":"Chemistry","text":"135. Which has highest ionization energy?","options":["Na","Mg","Ne","Al"],"answer":2},
+  {"id":"q136","subject":"Physics","text":"136. In series circuit current is?","options":["Same in all components","Different in each component","Zero","Depends on voltage only"],"answer":0},
+  {"id":"q137","subject":"Biology","text":"137. Which part of neuron receives signals?","options":["Axon","Dendrite","Synapse","Myelin"],"answer":1},
+  {"id":"q138","subject":"Chemistry","text":"138. Which phenomenon is responsible for blue color of sky?","options":["Rayleigh scattering","Mie scattering","Diffraction","Reflection"],"answer":0},
+  {"id":"q139","subject":"Physics","text":"139. If a wave's amplitude doubles, intensity changes by factor?","options":["2","4","8","No change"],"answer":1},
+  {"id":"q140","subject":"Biology","text":"140. Which organelle is main site of photosynthesis?","options":["Mitochondria","Chloroplast","RER","Golgi"],"answer":1},
+
+  {"id":"q141","subject":"Biology","text":"141. Which genetic disorder is due to trisomy 21?","options":["Turner syndrome","Down syndrome","Klinefelter syndrome","Patau syndrome"],"answer":1},
+  {"id":"q142","subject":"Chemistry","text":"142. Which gas used in refrigeration historically (CFC) is harmful to ozone?","options":["Ammonia","Chlorofluorocarbons (CFCs)","CO₂","Methane"],"answer":1},
+  {"id":"q143","subject":"Physics","text":"143. Lens formula is 1/f = 1/v + 1/u. For concave mirror sign of f is?","options":["Positive","Negative","Zero","Undefined"],"answer":1},
+  {"id":"q144","subject":"Biology","text":"144. Which blood disorder is due to deficiency of clotting factor?","options":["Anemia","Hemophilia","Leukemia","Thalassemia"],"answer":1},
+  {"id":"q145","subject":"Chemistry","text":"145. Which is chiral centre in molecule?","options":["Carbon with four identical groups","Carbon with four different groups","Any carbon","Carbonyl carbon"],"answer":1},
+  {"id":"q146","subject":"Physics","text":"146. Gravitational potential energy near Earth surface = ?","options":["mgh","½mv²","mg/r","mgh²"],"answer":0},
+  {"id":"q147","subject":"Biology","text":"147. Which is primary lymphoid organ?","options":["Spleen","Thymus","Lymph node","Tonsil"],"answer":1},
+  {"id":"q148","subject":"Chemistry","text":"148. Which salt is produced by neutralization of HCl with NaOH?","options":["NaCl","KCl","CaCl₂","MgCl₂"],"answer":0},
+  {"id":"q149","subject":"Physics","text":"149. Which metal is best conductor of electricity?","options":["Silver","Copper","Aluminum","Iron"],"answer":0},
+  {"id":"q150","subject":"Biology","text":"150. Mendel’s law of independent assortment applies to genes located on?","options":["Same chromosome close","Different chromosomes or far apart","Mitochondrial DNA","Sex chromosomes only"],"answer":1},
+
+  {"id":"q151","subject":"Biology","text":"151. Which enzyme synthesizes DNA from RNA template in retroviruses?","options":["DNA polymerase","Reverse transcriptase","RNA polymerase","Ligase"],"answer":1},
+  {"id":"q152","subject":"Chemistry","text":"152. Which is most reactive metal in activity series?","options":["Au","Pt","K","Ag"],"answer":2},
+  {"id":"q153","subject":"Physics","text":"153. Which of following is SI unit of frequency?","options":["Hz","Nm","J","W"],"answer":0},
+  {"id":"q154","subject":"Biology","text":"154. Which vitamin deficiency causes rickets?","options":["Vitamin C","Vitamin D","Vitamin A","Vitamin K"],"answer":1},
+  {"id":"q155","subject":"Chemistry","text":"155. Which is a tertiary amine?","options":["CH₃NH₂","(CH₃)₃N","CH₃NHCH₃","NH₃"],"answer":1},
+  {"id":"q156","subject":"Physics","text":"156. Which instrument measures frequency of signals?","options":["Voltmeter","Frequency meter / Oscilloscope","Ammeter","Galvanometer"],"answer":1},
+  {"id":"q157","subject":"Biology","text":"157. Which class of antibodies crosses placenta?","options":["IgA","IgG","IgM","IgD"],"answer":1},
+  {"id":"q158","subject":"Chemistry","text":"158. Which reaction releases energy to surroundings? / Exothermic reaction example?","options":["Photosynthesis","Combustion","Electrolysis","Melting"],"answer":1},
+  {"id":"q159","subject":"Physics","text":"159. The momentum of object is product of?","options":["Mass and velocity","Force and time","Mass and acceleration","Work and energy"],"answer":0},
+  {"id":"q160","subject":"Biology","text":"160. Which enzyme required for DNA replication to unwind helix?","options":["Ligase","Helicase","Topoisomerase only","Polymerase"],"answer":1},
+
+  {"id":"q161","subject":"Biology","text":"161. Which microbe is used in production of yogurt?","options":["E. coli","Lactobacillus","Staphylococcus","Clostridium"],"answer":1},
+  {"id":"q162","subject":"Chemistry","text":"162. Which compound is aromatic and planar?","options":["Cyclohexane","Benzene","Ethane","Propane"],"answer":1},
+  {"id":"q163","subject":"Physics","text":"163. If distance is proportional to t², motion is?","options":["Uniform","Uniformly accelerated","Random","Simple harmonic"],"answer":1},
+  {"id":"q164","subject":"Biology","text":"164. Which process results in formation of NADH from NAD⁺?","options":["Oxidation","Reduction","Hydrolysis","Condensation"],"answer":1},
+  {"id":"q165","subject":"Chemistry","text":"165. Which acid is present in vinegar?","options":["Formic acid","Acetic acid","Oxalic acid","Citric acid"],"answer":1},
+  {"id":"q166","subject":"Physics","text":"166. The electric potential at infinity is taken as?","options":["Zero","One","Minus one","Undefined"],"answer":0},
+  {"id":"q167","subject":"Biology","text":"167. Which blood cell fragment helps in clotting?","options":["RBC","WBC","Platelet","Plasma cell"],"answer":2},
+  {"id":"q168","subject":"Chemistry","text":"168. Which is a Lewis base?","options":["BF₃","NH₃","AlCl₃","H⁺"],"answer":1},
+  {"id":"q169","subject":"Physics","text":"169. Which property of light causes colors in thin films?","options":["Interference","Polarization","Diffraction","Reflection"],"answer":0},
+  {"id":"q170","subject":"Biology","text":"170. Sickle cell anemia is caused by mutation in which protein?","options":["Hemoglobin","Albumin","Insulin","Collagen"],"answer":0},
+
+  {"id":"q171","subject":"Biology","text":"171. Which organelle helps in detoxification in liver cells?","options":["RER","SER","Golgi","Mitochondria"],"answer":1},
+  {"id":"q172","subject":"Chemistry","text":"172. Which is product of complete combustion of hydrocarbon?","options":["CO","CO₂ & H₂O","Soot only","H₂"],"answer":1},
+  {"id":"q173","subject":"Physics","text":"173. For lens, power P = ?","options":["1/f (in meters)","f","2πf","f²"],"answer":0},
+  {"id":"q174","subject":"Biology","text":"174. Which is not a nucleotide?","options":["Adenine","Cytosine","Uracil","Glucose"],"answer":3},
+  {"id":"q175","subject":"Chemistry","text":"175. Which gas causes green house effect prominently?","options":["O₂","CO₂","N₂","He"],"answer":1},
+  {"id":"q176","subject":"Physics","text":"176. Thermal conductivity depends on?","options":["Material","Temperature","Cross-sectional area","All"],"answer":3},
+  {"id":"q177","subject":"Biology","text":"177. Which cell division reduces chromosome number by half?","options":["Mitosis","Meiosis","Binary fission","Budding"],"answer":1},
+  {"id":"q178","subject":"Chemistry","text":"178. Which type of bond is present in NaCl?","options":["Covalent","Ionic","Metallic","Hydrogen"],"answer":1},
+  {"id":"q179","subject":"Physics","text":"179. Which is SI base unit for temperature?","options":["Celsius","Kelvin","Fahrenheit","Rankine"],"answer":1},
+  {"id":"q180","subject":"Biology","text":"180. Which organ stores bile?","options":["Liver","Gall bladder","Pancreas","Stomach"],"answer":1},
+
+  {"id":"q181","subject":"Biology","text":"181. Which molecule is double-stranded?","options":["mRNA","DNA","rRNA","tRNA"],"answer":1},
+  {"id":"q182","subject":"Chemistry","text":"182. Which reagent tests for aldehyde (silver mirror)?","options":["Benedict","Tollen’s reagent","Br₂ water","HCl"],"answer":1},
+  {"id":"q183","subject":"Physics","text":"183. A projectile launched at 45° attains maximum range when air resistance is negligible. Which is true?","options":["Range maximum at 45°","Range independent of angle","Range maximum at 90°","Range zero"],"answer":0},
+  {"id":"q184","subject":"Biology","text":"184. Which is essential amino acid?","options":["Glycine","Valine","Alanine","Aspartic acid"],"answer":1},
+  {"id":"q185","subject":"Chemistry","text":"185. Which is formed during esterification?","options":["Alcohol","Ester","Amine","Carboxylic acid"],"answer":1},
+  {"id":"q186","subject":"Physics","text":"186. Electric current is flow of?","options":["Neutrons","Electrons or charge carriers","Protons","Photons"],"answer":1},
+  {"id":"q187","subject":"Biology","text":"187. Which organelle is site of protein synthesis?","options":["Lysosome","Ribosome","Golgi","Peroxisome"],"answer":1},
+  {"id":"q188","subject":"Chemistry","text":"188. Which is an aldehyde?","options":["Ethanol","Ethanal","Ethane","Acetone"],"answer":1},
+  {"id":"q189","subject":"Physics","text":"189. Hooke’s law relates force to?","options":["Extension","Temperature","Time","Mass"],"answer":0},
+  {"id":"q190","subject":"Biology","text":"190. Which blood vessel carries blood away from heart?","options":["Vein","Artery","Capillary","Vena cava"],"answer":1},
+
+  {"id":"q191","subject":"Biology","text":"191. Which process converts nitrates to ammonia?","options":["Nitrification","Nitrogen fixation","Denitrification","Ammonification"],"answer":3},
+  {"id":"q192","subject":"Chemistry","text":"192. Which is empirical formula of glucose (C₆H₁₂O₆)?","options":["C₆H₁₂O₆","CH₂O","C₂H₄O₂","C₃H₆O₃"],"answer":1},
+  {"id":"q193","subject":"Physics","text":"193. Which phenomenon explains bending of light when entering denser medium?","options":["Refraction","Reflection","Diffraction","Interference"],"answer":0},
+  {"id":"q194","subject":"Biology","text":"194. Which blood component transports lipids?","options":["RBC","WBC","Chylomicrons in lymph","Plasma proteins"],"answer":2},
+  {"id":"q195","subject":"Chemistry","text":"195. Which is product of fermentation by yeast?","options":["Ethanol & CO₂","Methane","Lactic acid","Acetic acid"],"answer":0},
+  {"id":"q196","subject":"Physics","text":"196. Work–energy theorem relates work done to change in what?","options":["Momentum","Kinetic energy","Potential energy","Power"],"answer":1},
+  {"id":"q197","subject":"Biology","text":"197. Which vitamin is essential for vision?","options":["Vitamin A","Vitamin B12","Vitamin C","Vitamin K"],"answer":0},
+  {"id":"q198","subject":"Chemistry","text":"198. Which is colligative property?","options":["Boiling point elevation","Density","Color","Refractive index"],"answer":0},
+  {"id":"q199","subject":"Physics","text":"199. The SI unit of work is?","options":["Joule","Newton","Watt","Pascal"],"answer":0},
+  {"id":"q200","subject":"Biology","text":"200. Which structure is site of protein sorting in cell? / Proteins sorted at?","options":["Golgi apparatus","Mitochondria","Nucleus","Ribosome"],"answer":0}
+];
+
+// Core quiz engine (random order each load), one-time submit stored in localStorage key:
+(function(){
+  const TOTAL = questions.length;
+  const STORAGE_KEY = 'neet_master_submitted';
+
+  // shuffle array and return shuffled indices
+  function shuffleArray(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  // create order
+  const order = shuffleArray(Array.from({length:TOTAL}, (_,i)=>i));
+
+  // render questions
+  const qArea = document.getElementById('questionsArea');
+  function render(){
+    qArea.innerHTML = '';
+    order.forEach((idx, pos)=>{
+      const q = questions[idx];
+      const card = document.createElement('div');
+      card.className = 'qcard';
+      card.id = q.id;
+      card.innerHTML = `<div class="qtop"><div><div class="qno">Q${pos+1}</div><div class="qsub">${q.subject}</div></div></div>
+        <div class="qtext">${q.text}</div>
+        <div class="opts">` + q.options.map((opt, oi)=>`
+          <label class="opt" data-q="${q.id}" data-oi="${oi}">
+            <input type="radio" name="${q.id}" value="${oi}"> <span class="opttext">${opt}</span>
+          </label>`).join('') + `</div>`;
+      qArea.appendChild(card);
+    });
+    updateProgress();
+  }
+
+  // progress count
+  function updateProgress(){
+    const answered = document.querySelectorAll('input[type=radio]:checked').length;
+    document.getElementById('progress').textContent = `Answered: ${answered}/${TOTAL}`;
+  }
+
+  window.filterBy = function(subject){
+    if(subject === 'all'){ window.scrollTo({top:0, behavior:'smooth'}); return; }
+    const all = document.querySelectorAll('.qcard');
+    for(const c of all){
+      const sub = c.querySelector('.qsub').innerText.trim();
+      if(sub === subject){ c.scrollIntoView({behavior:'smooth', block:'center'}); return; }
+    }
+    alert('No question of subject found on this page.');
+  }
+
+  render();
+  document.addEventListener('change', updateProgress);
+
+  // apply highlights and show result
+  function applyHighlights(payload){
+    // disable inputs
+    document.querySelectorAll('input[type=radio]').forEach(r=> r.disabled = true);
+    // highlight correct and wrong
+    payload.details.forEach(d=>{
+      const el = document.getElementById(d.id);
+      if(!el) return;
+      const correctLabel = el.querySelector(`label.opt[data-oi="${d.correct}"]`);
+      if(correctLabel) correctLabel.classList.add('correct','disabled');
+      if(d.selected !== null && d.selected !== d.correct){
+        const selLabel = el.querySelector(`label.opt[data-oi="${d.selected}"]`);
+        if(selLabel) selLabel.classList.add('wrong','disabled');
+      }
+    });
+    // show score
+    const sc = payload.score;
+    const tot = payload.total;
+    const perc = (sc/tot)*100;
+    document.getElementById('scoreDisplay').innerText = `Score: ${sc} / ${tot}`;
+    document.getElementById('percDisplay').innerText = `Percentage: ${perc.toFixed(2)}%`;
+    document.getElementById('submitBtn').style.display = 'none';
+    document.getElementById('tryAgainBtn').style.display = 'inline-block';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  // submit handler
+  document.getElementById('submitBtn').addEventListener('click', function(){
+    if(localStorage.getItem(STORAGE_KEY)){
+      alert('Test already submitted on this browser. Use Try Again to reset.');
+      return;
+    }
+    const answered = document.querySelectorAll('input[type=radio]:checked').length;
+    if(!confirm(`You have answered ${answered} / ${TOTAL} questions. Submit once?`)) return;
+    // compute result
+    let score = 0;
+    const details = [];
+    for(let i=0;i<TOTAL;i++){
+      const q = questions[order[i]];
+      const sel = document.querySelector(`input[name="${q.id}"]:checked`);
+      const selIdx = sel ? Number(sel.value) : null;
+      const correct = q.answer;
+      if(selIdx === correct) score++;
+      details.push({id:q.id, selected: selIdx, correct});
+    }
+    const payload = {submittedAt: new Date().toISOString(), score, total: TOTAL, details};
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    applyHighlights(payload);
+  });
+
+  // try again
+  document.getElementById('tryAgainBtn').addEventListener('click', function(){
+    if(confirm('This will clear your previous attempt on this browser and reload the test. Continue?')){
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    }
+  });
+
+  // if already submitted earlier, apply highlights
+  const existing = localStorage.getItem(STORAGE_KEY);
+  if(existing){
+    try{
+      const payload = JSON.parse(existing);
+      applyHighlights(payload);
+    }catch(e){}
+  }
+
+})();
+</script>
+</body>
+</html>
